@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <!-- CSS Imports -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.2/leaflet.draw.css" integrity="sha256-XzD3RpaHPv7lzX9qt+2n1j5cWj48O24KsgaGYpKN8x8=" crossorigin="anonymous" />
+    <script src="https://cdn.jsdelivr.net/npm/@turf/turf@5/turf.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.4.0/leaflet.css" integrity="sha256-YR4HrDE479EpYZgeTkQfgVJq08+277UXxMLbi/YP69o=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/reset.css" />
+    <link rel="stylesheet" href="css/style.css" />
+
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <link href="http://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css" rel="Stylesheet"></link>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.2/leaflet.draw.css" integrity="sha256-XzD3RpaHPv7lzX9qt+2n1j5cWj48O24KsgaGYpKN8x8=" crossorigin="anonymous" />
+    <script src="https://cdn.jsdelivr.net/npm/@turf/turf@5/turf.min.js"></script>
+
+
+    <meta charset='utf-8' />
+    <title>Style circles with a data-driven property</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.53.1/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.53.1/mapbox-gl.css' rel='stylesheet' />
+    <link rel="stylesheet" href="css/style.css" />
+
+
+  </head>
+  <body>
+
+
+    <!-- Sidebar -->
+    <div class="sidebar card" id="title_card">
+      <div class="title">
+        <b>&nbsp;&nbsp;&nbsp;&nbsp;Explore NYC Subway Stations & Nearby Blocks </b>
+        <div class="description">
+          The aim of this map is to help both planners and subway passengers to explore the information of Stations and surrounding block groups. Users can:</br>1) Search for a station and find its basic info including ridesrhip, line, rishership change and rank</br>2)Draw a buffer and calculate number of stations within this area</br>3)Calculate the best walking route from a station to any destination</br>4)Find the population density and job density of block gorups surrounding a station.
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar card" id="search_card">
+      <div class="card-body">
+        <h5 class="card-title">Search For A Station</h5>
+        <div class="row">
+          <div class="col-4">
+            Station Name
+          </div>
+          <div class="col-8 ui-widget">
+            <div class="input-group mb-3 ">
+              <input id="stationsDropdown" placeholder="Please enter a station">
+              <input type="hidden" id="stationSelected">
+              <button id="search" class="btn btn-primary"><i class="fas fa-search"></i></button>
+            </div>
+          </div>
+        </div>
+        <div id="search_details">
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar card" id="buffer_card">
+      <div class="card-body">
+        <h5 class="card-title">Marker Drawing Options</h5>
+
+        <div class="row">
+          <div class="col-1">
+            <input type="checkbox" id="marker_switch" aria-label="Checkbox for switching marker options">
+          </div>
+          <div class="col-8 checkbox_label">
+            <label for="marker_switch">Check it to calculate the best route</label>
+          </div>
+          <div id="clear_markers_section" class="hidden col-3">
+            <button id="clear_markers" class="btn btn-primary"><i class="fas fa-eraser"></i>&nbsp;Clear</button>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-4">
+            Radius (km)
+          </div>
+          <div class="col-8">
+            <div class="input-group mb-3">
+              <input type="text" id="buffer" class="form-control" placeholder="Please enter a buffer radius" aria-label="buffer" aria-describedby="basic-addon1">
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-1">
+            <input type="checkbox" id="display_block_group" aria-label="Checkbox for switching marker options">
+          </div>
+          <div class="col-11">
+            <label for="display_block_group">Display block group choropleth map</label>
+          </div>
+        </div>
+
+        <div id="stationNumber">
+        </div>
+      </div>
+    </div>
+
+    <!-- Map -->
+    <div id="map">
+    </div>
+
+    <!-- Legend -->
+    <div class="legend"></div>
+
+
+    <!-- Javascript Imports -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.4.0/leaflet.js" integrity="sha256-6BZRSENq3kxI4YYBDqJ23xg0r1GwTHEpvp3okdaIqBw=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.1/underscore.js" integrity="sha256-O4179En8zabOlPYBNvGp8cF0uh0vnSZpW4Q6Ul1h+8c=" crossorigin="anonymous"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.2/leaflet.draw.js" integrity="sha256-jzmB6xy6L0YPzPeu+ccUiPKp3UE+qRmo5xmq5BbnSv0=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@turf/turf@5/turf.min.js"></script>
+
+
+
+
+    <!-- Import geojson data -->
+    <script type="text/javascript" src="stationRidership.js"></script>
+    <script type="text/javascript" src="subwayLines.js"></script>
+    <script type="text/javascript" src="zipIndex.js"></script>
+    <script type="text/javascript" src="blockGroupData.js"></script>
+    <script type="text/javascript" src="decode.js"></script>
+
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:300" rel="stylesheet">
+
+
+
+
+    <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
+    <script src="index.js"></script>
+    <script src="finalFunctions.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+  </body>
+</html>
